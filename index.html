@@ -1,0 +1,979 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lluvia de abrazos</title>
+  <style>
+    :root {
+      --sky: #dff6ff;
+      --sky-2: #cfe9ff;
+      --pink: #ffd7eb;
+      --pink-2: #ffb8dc;
+      --pink-3: #ff8ec7;
+      --cream: #fff9fd;
+      --ink: #6c4a6e;
+      --ink-soft: #8b6f8d;
+      --panel: rgba(255, 249, 253, 0.76);
+      --panel-strong: rgba(255, 250, 254, 0.92);
+      --shadow: 0 24px 60px rgba(163, 112, 147, 0.22);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 10% 12%, rgba(255, 255, 255, 0.85), transparent 18%),
+        radial-gradient(circle at 85% 18%, rgba(255, 184, 220, 0.45), transparent 18%),
+        radial-gradient(circle at 20% 85%, rgba(207, 233, 255, 0.6), transparent 22%),
+        linear-gradient(180deg, #f9d9eb 0%, #e5efff 48%, #fff4fb 100%);
+      overflow-x: hidden;
+    }
+
+    .bg-collage {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+      opacity: 0.18;
+    }
+
+    .bg-sabrina,
+    .bg-heart {
+      position: absolute;
+      user-select: none;
+      filter: drop-shadow(0 18px 26px rgba(196, 118, 164, 0.18));
+    }
+
+    .bg-sabrina {
+      width: clamp(140px, 18vw, 250px);
+      border-radius: 28px;
+    }
+
+    .bg-heart {
+      width: clamp(50px, 7vw, 92px);
+    }
+
+    body::before,
+    body::after {
+      content: "";
+      position: fixed;
+      width: 24rem;
+      height: 24rem;
+      border-radius: 50%;
+      filter: blur(34px);
+      opacity: 0.38;
+      pointer-events: none;
+      z-index: 0;
+      animation: floatCloud 16s ease-in-out infinite;
+    }
+
+    body::before {
+      top: -7rem;
+      left: -5rem;
+      background: rgba(255, 184, 220, 0.6);
+    }
+
+    body::after {
+      right: -6rem;
+      bottom: -8rem;
+      background: rgba(207, 233, 255, 0.8);
+      animation-delay: -8s;
+    }
+
+    .page {
+      position: relative;
+      z-index: 1;
+      width: min(1120px, calc(100% - 1.4rem));
+      margin: 0 auto;
+      padding: 1rem 0 2.2rem;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 1rem;
+      align-items: stretch;
+      margin-bottom: 1rem;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid rgba(255, 255, 255, 0.45);
+      border-radius: 30px;
+      backdrop-filter: blur(18px);
+      box-shadow: var(--shadow);
+    }
+
+    .intro {
+      padding: 2rem;
+      animation: rise 0.75s ease both;
+    }
+
+    .eyebrow {
+      display: inline-block;
+      padding: 0.45rem 0.9rem;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.7);
+      font-size: 0.9rem;
+      letter-spacing: 0.03em;
+      color: var(--ink-soft);
+    }
+
+    h1 {
+      margin: 1rem 0 0.8rem;
+      font-size: clamp(2.35rem, 5vw, 4.5rem);
+      line-height: 0.92;
+      letter-spacing: -0.05em;
+    }
+
+    .lead {
+      margin: 0;
+      max-width: 58ch;
+      font-size: 1.05rem;
+      line-height: 1.72;
+      color: var(--ink-soft);
+    }
+
+    .hug-note {
+      margin-top: 1.2rem;
+      padding: 1rem 1.15rem;
+      border-radius: 22px;
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.72), rgba(255, 215, 235, 0.6));
+      border: 1px solid rgba(255, 255, 255, 0.58);
+      line-height: 1.6;
+    }
+
+    .stats {
+      padding: 1.5rem;
+      display: grid;
+      gap: 0.9rem;
+      animation: rise 0.75s ease 0.12s both;
+    }
+
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.8rem;
+    }
+
+    .card {
+      padding: 1rem;
+      border-radius: 22px;
+      background: var(--panel-strong);
+    }
+
+    .label {
+      display: block;
+      margin-bottom: 0.3rem;
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--ink-soft);
+    }
+
+    .value {
+      font-size: clamp(1.5rem, 3vw, 2.4rem);
+      font-weight: 700;
+    }
+
+    .meter {
+      display: grid;
+      gap: 0.5rem;
+    }
+
+    .meter-track {
+      height: 16px;
+      border-radius: 999px;
+      overflow: hidden;
+      background: rgba(255, 184, 220, 0.32);
+    }
+
+    .meter-fill {
+      height: 100%;
+      width: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, #ff8ec7, #ffa6cf, #c7e9ff);
+      transition: width 0.25s ease;
+    }
+
+    .game-shell {
+      padding: 1rem;
+      border-radius: 34px;
+      background: linear-gradient(180deg, rgba(255, 173, 214, 0.45), rgba(208, 236, 255, 0.38));
+      box-shadow: var(--shadow);
+      animation: rise 0.75s ease 0.22s both;
+    }
+
+    .toolbar {
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+      align-items: center;
+      padding: 0.5rem 0.25rem 1rem;
+    }
+
+    .toolbar strong {
+      display: block;
+      font-size: 1.18rem;
+    }
+
+    .toolbar span {
+      display: block;
+      margin-top: 0.25rem;
+      color: var(--ink-soft);
+      line-height: 1.5;
+    }
+
+    .actions {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    button {
+      border: none;
+      border-radius: 999px;
+      padding: 0.9rem 1.2rem;
+      font: inherit;
+      cursor: pointer;
+      transition: transform 0.16s ease, box-shadow 0.16s ease, opacity 0.16s ease;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+    }
+
+    .primary {
+      background: linear-gradient(135deg, #ff9bcc, #ffcee4);
+      color: #7e2d56;
+      box-shadow: 0 12px 24px rgba(255, 142, 199, 0.28);
+    }
+
+    .secondary {
+      background: linear-gradient(135deg, #dff6ff, #f7e1ff);
+      color: #5d6282;
+      box-shadow: 0 12px 24px rgba(199, 233, 255, 0.22);
+    }
+
+    .game-board {
+      position: relative;
+      min-height: 560px;
+      overflow: hidden;
+      border-radius: 32px;
+      background:
+        radial-gradient(circle at 15% 16%, rgba(255, 255, 255, 0.9), transparent 12%),
+        radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.7), transparent 12%),
+        linear-gradient(180deg, #ffd8ec 0%, #d8efff 60%, #fff7fb 100%);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7), var(--shadow);
+      touch-action: manipulation;
+    }
+
+    .cloud {
+      position: absolute;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.56);
+      filter: blur(0.2px);
+      opacity: 0.8;
+      animation: drift 18s linear infinite;
+    }
+
+    .cloud::before,
+    .cloud::after {
+      content: "";
+      position: absolute;
+      border-radius: 50%;
+      background: inherit;
+    }
+
+    .cloud::before {
+      width: 50%;
+      height: 130%;
+      left: 14%;
+      top: -45%;
+    }
+
+    .cloud::after {
+      width: 36%;
+      height: 100%;
+      right: 14%;
+      top: -28%;
+    }
+
+    .message {
+      position: absolute;
+      inset: 1rem 1rem auto;
+      margin: 0 auto;
+      width: min(94%, 660px);
+      padding: 1rem 1.1rem;
+      border-radius: 24px;
+      background: rgba(255, 250, 254, 0.9);
+      color: #7b5e82;
+      text-align: center;
+      line-height: 1.55;
+      box-shadow: 0 16px 34px rgba(163, 112, 147, 0.16);
+      transition: opacity 0.25s ease, transform 0.25s ease;
+      z-index: 3;
+    }
+
+    .message.hidden {
+      opacity: 0;
+      transform: translateY(-8px);
+    }
+
+    .hug {
+      position: absolute;
+      width: 96px;
+      height: 96px;
+      border: none;
+      background: transparent;
+      padding: 0;
+      display: grid;
+      place-items: center;
+      animation: bob 2.1s ease-in-out infinite;
+      touch-action: manipulation;
+      z-index: 2;
+    }
+
+    .hug-core {
+      position: relative;
+      width: 82px;
+      height: 82px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 50% 35%, #fff7fb 0%, #ffe1ef 42%, #ffacd4 100%);
+      box-shadow: 0 12px 26px rgba(255, 142, 199, 0.28);
+    }
+
+    .hug-core::before,
+    .hug-core::after {
+      content: "";
+      position: absolute;
+      top: 32px;
+      width: 34px;
+      height: 14px;
+      border-radius: 999px;
+      background: #ff8ec7;
+    }
+
+    .hug-core::before {
+      left: -12px;
+      transform: rotate(34deg);
+    }
+
+    .hug-core::after {
+      right: -12px;
+      transform: rotate(-34deg);
+    }
+
+    .hug-heart {
+      position: absolute;
+      top: 16px;
+      left: 50%;
+      width: 28px;
+      height: 28px;
+      background: #ff6daf;
+      transform: translateX(-50%) rotate(45deg);
+      border-radius: 6px;
+    }
+
+    .hug-heart::before,
+    .hug-heart::after {
+      content: "";
+      position: absolute;
+      width: 28px;
+      height: 28px;
+      background: inherit;
+      border-radius: 50%;
+    }
+
+    .hug-heart::before {
+      left: -14px;
+    }
+
+    .hug-heart::after {
+      top: -14px;
+    }
+
+    .hug-label {
+      position: absolute;
+      bottom: -8px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 0.28rem 0.55rem;
+      border-radius: 999px;
+      background: rgba(255, 250, 254, 0.9);
+      font-size: 0.82rem;
+      color: #8e5c8d;
+      white-space: nowrap;
+      box-shadow: 0 8px 18px rgba(163, 112, 147, 0.14);
+    }
+
+    .hug.pop {
+      animation: vanish 0.35s ease forwards;
+      pointer-events: none;
+    }
+
+    .spark {
+      position: absolute;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.95);
+      pointer-events: none;
+      animation: sparkle 0.6s ease forwards;
+      z-index: 1;
+    }
+
+    .completion {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      background:
+        radial-gradient(circle, rgba(255, 255, 255, 0.72), rgba(255, 215, 235, 0.72), rgba(207, 233, 255, 0.68));
+      backdrop-filter: blur(4px);
+      opacity: 0;
+      pointer-events: none;
+      transform: scale(0.7);
+      transition: opacity 0.35s ease, transform 0.45s ease;
+      z-index: 4;
+    }
+
+    .completion.show {
+      opacity: 1;
+      transform: scale(1);
+      pointer-events: auto;
+    }
+
+    .completion-card {
+      width: min(88%, 520px);
+      padding: 2rem 1.5rem;
+      border-radius: 34px;
+      background: rgba(255, 250, 254, 0.94);
+      text-align: center;
+      box-shadow: 0 24px 60px rgba(163, 112, 147, 0.24);
+      animation: hugZoom 0.7s ease;
+    }
+
+    .completion-emoji {
+      width: min(180px, 40vw);
+      border-radius: 28px;
+      box-shadow: 0 18px 36px rgba(255, 142, 199, 0.2);
+    }
+
+    .completion h2 {
+      margin: 0.9rem 0 0.45rem;
+      font-size: clamp(1.8rem, 4vw, 2.7rem);
+      line-height: 1;
+    }
+
+    .completion p {
+      margin: 0;
+      color: var(--ink-soft);
+      line-height: 1.6;
+    }
+
+    .kitty-collage {
+      position: relative;
+      width: min(250px, 100%);
+      height: 150px;
+      margin: 0 auto;
+      border-radius: 24px;
+      background: rgba(255, 240, 248, 0.8);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7), 0 10px 18px rgba(255, 142, 199, 0.14);
+      overflow: hidden;
+    }
+
+    .kitty-tile {
+      position: absolute;
+      width: 84px;
+      height: 108px;
+      overflow: hidden;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.72);
+      box-shadow: 0 10px 18px rgba(255, 142, 199, 0.14);
+      transform: rotate(var(--tilt, 0deg));
+    }
+
+    .kitty-tile img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .kitty-card {
+      display: grid;
+      gap: 0.75rem;
+    }
+
+    .kitty-tile.one {
+      left: 14px;
+      top: 24px;
+      z-index: 1;
+    }
+
+    .kitty-tile.two {
+      left: 82px;
+      top: 16px;
+      z-index: 2;
+    }
+
+    .kitty-tile.three {
+      left: 148px;
+      top: 26px;
+      z-index: 1;
+    }
+
+    .footer-note {
+      margin: 1rem 0 0;
+      text-align: center;
+      color: var(--ink-soft);
+      line-height: 1.55;
+    }
+
+    @keyframes floatCloud {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      50% { transform: translate(0.9rem, -1rem) scale(1.06); }
+    }
+
+    @keyframes rise {
+      from {
+        opacity: 0;
+        transform: translateY(18px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes bob {
+      0%, 100% { transform: translateY(0) scale(1); }
+      50% { transform: translateY(-8px) scale(1.04); }
+    }
+
+    @keyframes vanish {
+      to {
+        opacity: 0;
+        transform: scale(1.45);
+      }
+    }
+
+    @keyframes sparkle {
+      from {
+        opacity: 1;
+        transform: translate(0, 0) scale(1);
+      }
+      to {
+        opacity: 0;
+        transform: translate(var(--spark-x), var(--spark-y)) scale(0.2);
+      }
+    }
+
+    @keyframes drift {
+      from { transform: translateX(-140px); }
+      to { transform: translateX(calc(100vw + 140px)); }
+    }
+
+    @keyframes hugZoom {
+      0% {
+        transform: scale(0.7);
+        opacity: 0;
+      }
+      70% {
+        transform: scale(1.07);
+        opacity: 1;
+      }
+      100% {
+        transform: scale(1);
+      }
+    }
+
+    @media (max-width: 900px) {
+      .hero {
+        grid-template-columns: 1fr;
+      }
+
+      .game-board {
+        min-height: 520px;
+      }
+    }
+
+    @media (max-width: 560px) {
+      .page {
+        width: min(100% - 0.8rem, 1120px);
+      }
+
+      .intro,
+      .stats {
+        padding: 1.2rem;
+      }
+
+      .toolbar {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .actions button {
+        width: 100%;
+      }
+
+      .stat-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .game-board {
+        min-height: 460px;
+      }
+
+      .hug {
+        width: 86px;
+        height: 86px;
+      }
+
+      .hug-core {
+        width: 72px;
+        height: 72px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-collage" aria-hidden="true">
+    <img class="bg-sabrina" src="sabrina.png" alt="">
+    <img class="bg-heart" src="corazon.png" alt="">
+    <img class="bg-sabrina" src="sabrina.png" alt="">
+    <img class="bg-heart" src="corazon.png" alt="">
+    <img class="bg-sabrina" src="sabrina.png" alt="">
+    <img class="bg-heart" src="corazon.png" alt="">
+    <img class="bg-sabrina" src="sabrina.png" alt="">
+    <img class="bg-heart" src="corazon.png" alt="">
+    <img class="bg-heart" src="corazon.png" alt="">
+    <img class="bg-heart" src="corazon.png" alt="">
+    <img class="bg-heart" src="corazon.png" alt="">
+    <img class="bg-heart" src="corazon.png" alt="">
+    <img class="bg-heart" src="corazon.png" alt="">
+    <img class="bg-heart" src="corazon.png" alt="">
+  </div>
+  <main class="page">
+    <section class="hero">
+      <article class="panel intro">
+        <div class="eyebrow">Rosa suave + celeste nube</div>
+        <h1>Lluvia de abrazos para bajar un poquito el día.</h1>
+        <p class="lead">
+    Tuviste un dia de mrd por unos vileros poronga, veni que con abrazos 
+    Te vengo a calmar mor llega a 15 a ver si podes jijiji.
+        </p>
+        <div class="hug-note">
+    DATO DEL DIA, sabias que un salteño gusta mucho de vos?? tipo re loquito mal
+te dedica paj-paginas, y encima esta re enamorado de vs wtf.
+        </div>
+      </article>
+
+      <aside class="panel stats">
+        <div class="stat-grid">
+          <div class="card">
+            <span class="label">Abrazos juntados</span>
+            <span class="value" id="score">0</span>
+          </div>
+          <div class="card">
+            <span class="label">Meta de la ronda</span>
+            <span class="value" id="goal">15</span>
+          </div>
+        </div>
+
+        <div class="card meter">
+          <span class="label">Barrita de mimos</span>
+          <div class="meter-track">
+            <div class="meter-fill" id="progressFill"></div>
+          </div>
+          <span id="progressText">Todavía no empezó, pero ya se ve bonito.</span>
+        </div>
+
+        <div class="card kitty-card">
+          <span class="label">Mi Kittyta hermosha</span>
+          <div class="kitty-collage">
+            <div class="kitty-tile one" style="--tilt:-7deg;">
+              <img src="kitty.jpg" alt="Hello Kitty">
+            </div>
+            <div class="kitty-tile two" style="--tilt:2deg;">
+              <img src="kitty.jpg" alt="Hello Kitty">
+            </div>
+            <div class="kitty-tile three" style="--tilt:7deg;">
+              <img src="kitty.jpg" alt="Hello Kitty">
+            </div>
+          </div>
+        </div>
+      </aside>
+    </section>
+
+    <section class="game-shell">
+      <div class="toolbar">
+        <div>
+          <strong>Minijuego: tocar abrazos</strong>
+          <span>Toca cada abrazo que aparece. En cel con el dedo, en PC con click.</span>
+        </div>
+        <div class="actions">
+          <button class="primary" id="startBtn">Empezar abrazo</button>
+          <button class="secondary" id="resetBtn">Reiniciar</button>
+        </div>
+      </div>
+
+      <div class="game-board" id="gameBoard">
+        <div class="message" id="messageBox">
+          Presiona “Empezar abrazo” y toca los abrazos que vayan apareciendo. La ronda termina al juntar 12.
+        </div>
+
+        <div class="completion" id="completion">
+          <div class="completion-card">
+            <img class="completion-emoji" src="kitty.jpg" alt="Hello Kitty con corazón">
+            <h2>mmm, que rico abrazo... y qué peligro</h2>
+            <p>
+              Vení, abrazo apretadito. Mmm... qué rico rosquete... digo, abrazo.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <p class="footer-note" id="footerNote">
+        Si quiere jugar despacito también sirve. La idea es que se sienta suave, no exigente.
+      </p>
+    </section>
+  </main>
+
+  <script>
+    const board = document.getElementById("gameBoard");
+    const startBtn = document.getElementById("startBtn");
+    const resetBtn = document.getElementById("resetBtn");
+    const scoreEl = document.getElementById("score");
+    const goalEl = document.getElementById("goal");
+    const progressFill = document.getElementById("progressFill");
+    const progressText = document.getElementById("progressText");
+    const messageBox = document.getElementById("messageBox");
+    const footerNote = document.getElementById("footerNote");
+    const completion = document.getElementById("completion");
+    const collageItems = document.querySelectorAll(".bg-collage img");
+
+    const goal = 15;
+    const hugMessages = [
+      "ME TOCAS DE VUELTA Y TE PERMA GARCHO.",
+      "Ese abrazo entró demasiado bien.",
+      "Suavecito. Otro mimo tuyo y te tiro toda la sancor.",
+      "Qué lindo, segui sumando abrazos traviesos.",
+      "MMMM me corroooo."
+    ];
+
+    let running = false;
+    let score = 0;
+    let spawnTimer = null;
+
+    goalEl.textContent = goal;
+
+    const collagePositions = [
+      { left: "2%", top: "7%", rotate: "-9deg", scale: "1" },
+      { left: "16%", top: "12%", rotate: "7deg", scale: "0.95" },
+      { left: "30%", top: "6%", rotate: "-6deg", scale: "0.92" },
+      { left: "74%", top: "6%", rotate: "10deg", scale: "1.02" },
+      { left: "86%", top: "18%", rotate: "-8deg", scale: "0.9" },
+      { left: "90%", top: "44%", rotate: "12deg", scale: "0.88" },
+      { left: "4%", top: "52%", rotate: "8deg", scale: "1.05" },
+      { left: "20%", top: "68%", rotate: "-10deg", scale: "0.92" },
+      { left: "34%", top: "66%", rotate: "-12deg", scale: "1" },
+      { left: "50%", top: "34%", rotate: "-6deg", scale: "0.9" },
+      { left: "60%", top: "18%", rotate: "9deg", scale: "0.86" },
+      { left: "68%", top: "60%", rotate: "6deg", scale: "1.02" },
+      { left: "78%", top: "78%", rotate: "-7deg", scale: "0.9" },
+      { left: "48%", top: "82%", rotate: "5deg", scale: "0.86" }
+    ];
+
+    collageItems.forEach((item, index) => {
+      const pos = collagePositions[index];
+      item.style.left = pos.left;
+      item.style.top = pos.top;
+      item.style.transform = `rotate(${pos.rotate}) scale(${pos.scale})`;
+    });
+
+    function setMessage(text, sticky = false) {
+      messageBox.textContent = text;
+      messageBox.classList.remove("hidden");
+
+      if (!sticky) {
+        clearTimeout(messageBox.hideTimer);
+        messageBox.hideTimer = setTimeout(() => {
+          if (running) {
+            messageBox.classList.add("hidden");
+          }
+        }, 1500);
+      }
+    }
+
+    function updateHud() {
+      scoreEl.textContent = score;
+      const percent = Math.max(6, 100 - ((goal - score) / goal) * 100);
+      progressFill.style.width = percent + "%";
+
+      if (score === 0) {
+        progressText.textContent = "Todavía no empezó, pero mira que facha la barra que hice.";
+      } else if (score < 4) {
+        progressText.textContent = "Ya arrancó. El rincón se va llenando de mimos.";
+      } else if (score < 10) {
+        progressText.textContent = "Va tomando forma. Suma la barra y acabo.. tu relajacion jijiji.";
+      } else if (score < goal) {
+        progressText.textContent = "Falta poquito. Ya casi casi sisisis.";
+      } else {
+        progressText.textContent = "Ronda completa. Abrazo desbloqueado.";
+      }
+    }
+
+    function makeClouds() {
+      board.querySelectorAll(".cloud").forEach((cloud) => cloud.remove());
+      for (let i = 0; i < 4; i += 1) {
+        const cloud = document.createElement("span");
+        cloud.className = "cloud";
+        cloud.style.width = 90 + Math.random() * 80 + "px";
+        cloud.style.height = 34 + Math.random() * 18 + "px";
+        cloud.style.top = 70 + i * 80 + Math.random() * 18 + "px";
+        cloud.style.left = -120 - Math.random() * 220 + "px";
+        cloud.style.animationDuration = 15 + Math.random() * 14 + "s";
+        cloud.style.animationDelay = -Math.random() * 10 + "s";
+        board.appendChild(cloud);
+      }
+    }
+
+    function clearHugs() {
+      board.querySelectorAll(".hug, .spark").forEach((node) => node.remove());
+    }
+
+    function makeSpark(x, y) {
+      for (let i = 0; i < 8; i += 1) {
+        const spark = document.createElement("span");
+        spark.className = "spark";
+        spark.style.left = x + "px";
+        spark.style.top = y + "px";
+        spark.style.setProperty("--spark-x", `${(Math.random() - 0.5) * 120}px`);
+        spark.style.setProperty("--spark-y", `${(Math.random() - 0.5) * 120}px`);
+        board.appendChild(spark);
+        setTimeout(() => spark.remove(), 650);
+      }
+    }
+
+    function completeRound() {
+      running = false;
+      clearInterval(spawnTimer);
+      spawnTimer = null;
+      clearHugs();
+      setMessage("Ronda completada.", true);
+      footerNote.textContent = "Quedó el abrazo final en pantalla. Si quiere, puede reiniciar y jugar otra vez.";
+      completion.classList.add("show");
+    }
+
+    function spawnHug() {
+      if (!running || score >= goal) {
+        return;
+      }
+
+      const hug = document.createElement("button");
+      hug.type = "button";
+      hug.className = "hug";
+      hug.setAttribute("aria-label", "Tocar abrazo");
+      hug.innerHTML = `
+        <span class="hug-core">
+          <span class="hug-heart"></span>
+        </span>
+        <span class="hug-label">abrazito</span>
+      `;
+
+      const rect = board.getBoundingClientRect();
+      const size = window.innerWidth < 560 ? 86 : 96;
+      const left = 14 + Math.random() * Math.max(40, rect.width - size - 28);
+      const top = 92 + Math.random() * Math.max(140, rect.height - size - 150);
+
+      hug.style.left = left + "px";
+      hug.style.top = top + "px";
+      hug.style.animationDuration = 2.5 + Math.random() * 1.4 + "s";
+
+      const life = 2900 + Math.random() * 1700;
+      const missTimer = setTimeout(() => {
+        if (hug.isConnected) {
+          hug.classList.add("pop");
+          setTimeout(() => hug.remove(), 340);
+        }
+      }, life);
+
+      hug.addEventListener("click", () => {
+        clearTimeout(missTimer);
+        score += 1;
+        updateHud();
+        setMessage(hugMessages[Math.floor(Math.random() * hugMessages.length)]);
+        footerNote.textContent = score < goal
+          ? "Cada abrazo tocado suma un mimo visual."
+          : "Llegó al final de la ronda.";
+
+        const hugRect = hug.getBoundingClientRect();
+        const boardRect = board.getBoundingClientRect();
+        makeSpark(
+          hugRect.left - boardRect.left + hugRect.width / 2,
+          hugRect.top - boardRect.top + hugRect.height / 2
+        );
+
+        hug.classList.add("pop");
+        setTimeout(() => hug.remove(), 340);
+
+        if (score >= goal) {
+          completeRound();
+        }
+      });
+
+      board.appendChild(hug);
+    }
+
+    function stopGame() {
+      running = false;
+      clearInterval(spawnTimer);
+      spawnTimer = null;
+      clearHugs();
+    }
+
+    function startGame() {
+      stopGame();
+      completion.classList.remove("show");
+      running = true;
+      score = 0;
+      updateHud();
+      setMessage("EMPIEZA LA SHUVIAAAAAAA.", true);
+      footerNote.textContent = "Junta 15 abrazos para desbloquear el abrazo grande.";
+      spawnHug();
+      spawnTimer = setInterval(() => {
+        spawnHug();
+        if (Math.random() > 0.74) {
+          setTimeout(spawnHug, 760);
+        }
+      }, 1450);
+    }
+
+    function resetGame() {
+      stopGame();
+      score = 0;
+      updateHud();
+      completion.classList.remove("show");
+      footerNote.textContent = "Si quiere jugar despacito también sirve. La idea es que se sienta suave, no exigente.";
+      setMessage("Presiona “Empezar abrazo” y toca los abrazos que vayan apareciendo. La ronda termina al juntar 15.", true);
+    }
+
+    startBtn.addEventListener("click", startGame);
+    resetBtn.addEventListener("click", resetGame);
+    completion.addEventListener("click", () => completion.classList.remove("show"));
+
+    makeClouds();
+    updateHud();
+  </script>
+</body>
+</html>
